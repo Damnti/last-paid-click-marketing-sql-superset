@@ -8,7 +8,7 @@ WITH last_payment_rn AS (
         s.*,
         ROW_NUMBER()
             OVER (
-                PARTITON BY s.visitor_id
+                PARTITION BY s.visitor_id
                 ORDER BY s.visit_date DESC
             )
         AS rn
