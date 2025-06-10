@@ -67,7 +67,7 @@ SELECT
     lp.utm_medium,
     lp.utm_campaign,
     COUNT(DISTINCT lp.visitor_id) AS visitors_count,
-    COALESCE(a.total_cost, 0),
+    COALESCE(a.total_cost, 0) AS total_cost,
     COUNT(lp.lead_id) AS leads_count,
     COUNT(DISTINCT lp.visitor_id) FILTER (
         WHERE lp.closing_reason = 'Успешная продажа' OR lp.status_id = '142'
