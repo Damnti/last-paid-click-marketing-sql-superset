@@ -1,36 +1,36 @@
-with last_payment_rn as (
-    select
+WITH last_payment_rn AS (
+    SELECT
         l.lead_id,
         l.created_at,
         l.amount,
         l.closing_reason,
         l.status_id,
         s.*,
-        row_number()
-            over (
-                partition by s.visitor_id
-                order by s.visit_date desc
+        ROW_NUMBER()
+            OVER (
+                PARTITON BY s.visitor_id
+                ORDER BY s.visit_date DESC
             )
-        as rn
-    from sessions as s
-    inner join
-        leads as l
-        on s.visitor_id = l.visitor_id and s.visit_date <= l.created_at
-    where medium != 'organic'
+        AS rn
+    FROM sessions AS s
+    INNER JOIN
+        leads AS l
+        ON s.visitor_id = l.visitor_id AND s.visit_date <= l.created_at
+    WHERE medium != 'organic'
 )
 
-select
+SELECT
     visitor_id,
     visit_date,
-    source as utm_source,
-    medium as utm_medium,
-    campaign as utm_campaign,
+    source AS utm_source,
+    medium AS utm_medium,
+    campaign AS utm_campaign,
     lead_id,
     created_at,
     amount,
     closing_reason,
     status_id
-from last_payment_rn
-where rn = 1
-order by
-    amount desc nulls last, visit_date asc, utm_source asc, utm_medium asc, utm_campaign asc;
+FROM last_payment_rn
+WHERE rn = 1
+ORDER BY
+    amount DESC NULLS LAST, visit_date, utm_source, utm_medium, utm_campaign;
