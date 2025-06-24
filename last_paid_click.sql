@@ -20,7 +20,7 @@ WITH last_payment_rn AS (
     INNER JOIN
         leads AS l
         ON s.visitor_id = l.visitor_id AND s.visit_date <= l.created_at
-    WHERE medium != 'organic'
+    WHERE s.medium != 'organic'
 )
 
 SELECT
@@ -37,4 +37,5 @@ SELECT
 FROM last_payment_rn
 WHERE rn = 1
 ORDER BY
-    amount DESC NULLS LAST, visit_date ASC, utm_source ASC, utm_medium ASC, utm_campaign ASC;
+    amount DESC NULLS LAST, visit_date ASC, utm_source 
+ASC, utm_medium ASC, utm_campaign ASC;
