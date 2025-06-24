@@ -20,7 +20,7 @@ WITH last_payment_rn AS (
     LEFT JOIN
         leads AS l
         ON s.visitor_id = l.visitor_id AND s.visit_date <= l.created_at
-    WHERE medium != 'organic'
+    WHERE s.medium != 'organic'
 ),
 
 last_payment_filtred AS (
@@ -90,8 +90,8 @@ GROUP BY
     a.total_cost
 ORDER BY
     revenue DESC NULLS LAST,
-    visit_date ASC,
+    lp.visit_date ASC,
     visitors_count DESC,
-    utm_source ASC,
-    utm_medium ASC,
-    utm_campaign ASC
+    lp.utm_source ASC,
+    lp.utm_medium ASC,
+    lp.utm_campaign ASC
