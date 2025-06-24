@@ -1,28 +1,28 @@
 -- Визиты на сайт
-select COUNT(DISTINCT visitor_id) AS visitors_count
+SELECT COUNT(DISTINCT visitor_id) AS visitors_count
 FROM sessions;
 
 
 -- Общие расходы
 SELECT SUM(daily_spent) AS total_spent
 FROM (
-    SELECT daily_spent 
+    SELECT daily_spent
     FROM vk_ads
-    
-    UNION all
-    
-    SELECT daily_spent 
+
+    UNION ALL
+
+    SELECT daily_spent
     FROM ya_ads
-) as total;
+) AS total;
 
 
 -- Лиды
-select COUNT(lead_id) AS leads_count
+SELECT COUNT(lead_id) AS leads_count
 FROM leads;
 
 
 -- Успешные лиды
-select COUNT(lead_id) AS leads_count
+SELECT COUNT(lead_id) AS leads_count
 FROM leads
 WHERE closing_reason = 'Успешная продажа' OR status_id = '142';
 
@@ -137,66 +137,66 @@ WHERE a.utm_source IS NOT NULL;
 
 
 -- Каналы переходов
-select
-	source as utm_source,
-	medium as utm_medium,
-	campaign as utm_campaign,
-	visit_date::date as date,
-	count(distinct visitor_id) as unique_visitors
-from sessions
-group by source, medium, campaign, visit_date::date;
+SELECT
+    source AS utm_source,
+    medium AS utm_medium,
+    campaign AS utm_campaign,
+    visit_date::DATE AS date,
+    COUNT(DISTINCT visitor_id) AS unique_visitors
+FROM sessions
+GROUP BY source, medium, campaign, visit_date::DATE;
 
 
 -- Конверсия из клика в лид и из лида в оплату
-with visits as (
-	SELECT COUNT(DISTINCT visitor_id) AS visitors
-	FROM sessions
+WITH visits AS (
+    SELECT COUNT(DISTINCT visitor_id) AS visitors
+    FROM sessions
 ),
 
-succ_lead as (
-	SELECT COUNT(lead_id) AS s_lead
-	FROM leads
-	WHERE closing_reason = 'Успешная продажа' OR status_id = '142'
+succ_lead AS (
+    SELECT COUNT(lead_id) AS s_lead
+    FROM leads
+    WHERE closing_reason = 'Успешная продажа' OR status_id = '142'
 ),
 
-lead as (
-	SELECT COUNT(lead_id) AS leads
-	FROM leads
+lead AS (
+    SELECT COUNT(lead_id) AS leads
+    FROM leads
 )
 
-select
-	'Клик → Лид' AS conversion_type,
-	CAST(leads as Float) / visitors as conversion
-from visits
-cross join lead
+SELECT
+    'Клик → Лид' AS conversion_type,
+    leads::FLOAT / visitors AS conversion
+FROM visits
+CROSS JOIN lead
 
-union all 
+UNION ALL
 
-select
-	'Лид → Продажа' AS conversion_type,
-	CAST(s_lead as Float) / leads as conversion
-from lead
-cross join succ_lead;
+SELECT
+    'Лид → Продажа' AS conversion_type,
+    s_lead::FLOAT / leads AS conversion
+FROM lead
+CROSS JOIN succ_lead;
 
 
 -- Расходы
 SELECT
-    campaign_date::date as date,
+    campaign_date::DATE AS date,
     utm_source,
     utm_medium,
     utm_campaign,
-    SUM(daily_spent) as daily_spent
+    SUM(daily_spent) AS daily_spent
 FROM vk_ads
 GROUP BY
     campaign_date,
     utm_source,
     utm_medium,
     utm_campaign
-    
-UNION all
+
+UNION ALL
 
 SELECT
-    campaign_date::date,
+    campaign_date::DATE,
     utm_source,
     utm_medium,
     utm_campaign,
@@ -210,16 +210,17 @@ GROUP BY
 
 
 -- Доходы
-select
-	l.created_at::date as date,
-	s.source as utm_source,
-	s.medium AS utm_medium,
-	sum(l.amount)
-from leads l
-left join sessions s on
-l.visitor_id = s.visitor_id
-where source in ('vk', 'yandex')
-group by 1,2,3;
+SELECT
+    l.created_at::DATE AS date,
+    s.source AS utm_source,
+    s.medium AS utm_medium,
+    SUM(l.amount)
+FROM leads AS l
+LEFT JOIN sessions AS s
+    ON
+        l.visitor_id = s.visitor_id
+WHERE source IN ('vk', 'yandex')
+GROUP BY 1, 2, 3;
 
 
 -- Расчет метрик
@@ -338,8 +339,8 @@ GROUP BY a.utm_source;
 SELECT
     PERCENTILE_CONT(0.9) WITHIN GROUP (
         ORDER BY l.created_at - s.visit_date
-    ) as prcntile_9
+    ) AS prcntile_9
 FROM sessions AS s
-LEFT JOIN leads AS l on
-	s.visitor_id = l.visitor_id
-   	AND s.visit_date <= l.created_at;
+LEFT JOIN leads AS l ON
+    s.visitor_id = l.visitor_id
+    AND s.visit_date <= l.created_at;
