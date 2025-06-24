@@ -1,11 +1,15 @@
 WITH last_payment_rn AS (
     SELECT
+        s.visitor_id,
+        s.visit_date,
+        s.source,
+        s.medium,
+        s.campaign,
         l.lead_id,
         l.created_at,
         l.amount,
         l.closing_reason,
         l.status_id,
-        s.*,
         ROW_NUMBER()
             OVER (
                 PARTITION BY s.visitor_id
@@ -33,4 +37,4 @@ SELECT
 FROM last_payment_rn
 WHERE rn = 1
 ORDER BY
-    amount DESC NULLS LAST, visit_date, utm_source, utm_medium, utm_campaign;
+    amount DESC NULLS LAST, visit_date ASC, utm_source ASC, utm_medium ASC, utm_campaign ASC;
