@@ -214,7 +214,7 @@ SELECT
     l.created_at::date,
     s.source AS utm_source,
     s.medium AS utm_medium,
-    SUM(l.amount) AS sum
+    SUM(l.amount) AS sum_amount
 FROM leads AS l
 LEFT JOIN sessions AS s
     ON
