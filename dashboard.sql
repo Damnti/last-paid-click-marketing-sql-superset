@@ -141,7 +141,7 @@ SELECT
     source AS utm_source,
     medium AS utm_medium,
     campaign AS utm_campaign,
-    visit_date::date AS date,
+    visit_date::date,
     COUNT(DISTINCT visitor_id) AS unique_visitors
 FROM sessions
 GROUP BY source, medium, campaign, visit_date::date;
@@ -166,7 +166,7 @@ lead AS (
 
 SELECT
     'Клик → Лид' AS conversion_type,
-    l.leads::float / v.visitors AS conversion
+    l.leads::float / v.visitors AS cr
 FROM visits AS v
 CROSS JOIN lead AS l
 
@@ -174,14 +174,14 @@ UNION ALL
 
 SELECT
     'Лид → Продажа' AS conversion_type,
-    sl.s_lead::float / ld.leads AS conversion
+    sl.s_lead::float / ld.leads AS cr
 FROM lead AS ld
 CROSS JOIN succ_lead AS sl;
 
 
 -- Расходы
 SELECT
-    campaign_date::date AS date,
+    campaign_date::date,
     utm_source,
     utm_medium,
     utm_campaign,
@@ -211,10 +211,10 @@ GROUP BY
 
 -- Доходы
 SELECT
-    l.created_at::date AS date,
+    l.created_at::date,
     s.source AS utm_source,
     s.medium AS utm_medium,
-    SUM(l.amount)
+    SUM(l.amount) AS sum
 FROM leads AS l
 LEFT JOIN sessions AS s
     ON
