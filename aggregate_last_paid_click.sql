@@ -41,13 +41,13 @@ last_payment_filtred AS (
 
 ads AS (
     SELECT
-        campaign_date::DATE,
+        campaign_date::date,
         utm_source,
         utm_medium,
         utm_campaign,
         SUM(daily_spent) AS total_cost
     FROM vk_ads
-    GROUP BY campaign_date::DATE, utm_source, utm_medium, utm_campaign
+    GROUP BY campaign_date::date, utm_source, utm_medium, utm_campaign
 
     UNION ALL
 
@@ -58,16 +58,16 @@ ads AS (
         utm_campaign,
         SUM(daily_spent) AS total_cost
     FROM ya_ads
-    GROUP BY campaign_date::DATE, utm_source, utm_medium, utm_campaign
+    GROUP BY campaign_date::date, utm_source, utm_medium, utm_campaign
 )
 
 SELECT
     lp.visit_date,
-    COUNT(DISTINCT lp.visitor_id) AS visitors_count,
     lp.utm_source,
     lp.utm_medium,
     lp.utm_campaign,
-    COALESCE(a.total_cost, 0) AS total_cost,
+    a.total_cost,
+    COUNT(DISTINCT lp.visitor_id) AS visitors_count,
     COUNT(lp.lead_id) AS leads_count,
     COUNT(DISTINCT lp.visitor_id) FILTER (
         WHERE lp.closing_reason = 'Успешная продажа' OR lp.status_id = '142'
@@ -89,4 +89,9 @@ GROUP BY
     lp.utm_campaign,
     a.total_cost
 ORDER BY
-    revenue DESC NULLS LAST, visit_date, visitors_count DESC, utm_source, utm_medium, utm_campaign;
+    revenue DESC NULLS LAST,
+    visit_date ASC,
+    visitors_count DESC,
+    utm_source ASC,
+    utm_medium ASC,
+    utm_campaign ASC
