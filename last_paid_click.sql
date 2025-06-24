@@ -37,5 +37,5 @@ SELECT
 FROM last_payment_rn
 WHERE rn = 1
 ORDER BY
-    amount DESC NULLS LAST, visit_date ASC, utm_source 
-ASC, utm_medium ASC, utm_campaign ASC;
+    amount DESC NULLS LAST, visit_date ASC, utm_source
+    ASC, utm_medium ASC, utm_campaign ASC;
