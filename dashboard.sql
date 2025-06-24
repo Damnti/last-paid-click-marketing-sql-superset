@@ -50,7 +50,7 @@ WITH last_payment_rn AS (
     LEFT JOIN
         leads AS l
         ON s.visitor_id = l.visitor_id AND s.visit_date <= l.created_at
-    WHERE medium != 'organic'
+    WHERE s.medium != 'organic'
 ),
 
 last_payment_filtred AS (
@@ -141,10 +141,10 @@ SELECT
     source AS utm_source,
     medium AS utm_medium,
     campaign AS utm_campaign,
-    visit_date::DATE AS date,
+    visit_date::date AS date,
     COUNT(DISTINCT visitor_id) AS unique_visitors
 FROM sessions
-GROUP BY source, medium, campaign, visit_date::DATE;
+GROUP BY source, medium, campaign, visit_date::date;
 
 
 -- Конверсия из клика в лид и из лида в оплату
@@ -166,22 +166,22 @@ lead AS (
 
 SELECT
     'Клик → Лид' AS conversion_type,
-    leads::FLOAT / visitors AS conversion
-FROM visits
-CROSS JOIN lead
+    l.leads::float / v.visitors AS conversion
+FROM visits AS v
+CROSS JOIN lead AS l
 
 UNION ALL
 
 SELECT
     'Лид → Продажа' AS conversion_type,
-    s_lead::FLOAT / leads AS conversion
-FROM lead
-CROSS JOIN succ_lead;
+    sl.s_lead::float / ld.leads AS conversion
+FROM lead AS ld
+CROSS JOIN succ_lead AS sl;
 
 
 -- Расходы
 SELECT
-    campaign_date::DATE AS date,
+    campaign_date::date AS date,
     utm_source,
     utm_medium,
     utm_campaign,
@@ -196,7 +196,7 @@ GROUP BY
 UNION ALL
 
 SELECT
-    campaign_date::DATE,
+    campaign_date::date,
     utm_source,
     utm_medium,
     utm_campaign,
@@ -211,7 +211,7 @@ GROUP BY
 
 -- Доходы
 SELECT
-    l.created_at::DATE AS date,
+    l.created_at::date AS date,
     s.source AS utm_source,
     s.medium AS utm_medium,
     SUM(l.amount)
@@ -219,8 +219,8 @@ FROM leads AS l
 LEFT JOIN sessions AS s
     ON
         l.visitor_id = s.visitor_id
-WHERE source IN ('vk', 'yandex')
-GROUP BY 1, 2, 3;
+WHERE s.source IN ('vk', 'yandex')
+GROUP BY l.created_at::date, s.source, s.medium;
 
 
 -- Расчет метрик
@@ -246,7 +246,7 @@ WITH last_payment_rn AS (
     LEFT JOIN
         leads AS l
         ON s.visitor_id = l.visitor_id AND s.visit_date <= l.created_at
-    WHERE medium != 'organic'
+    WHERE s.medium != 'organic'
 ),
 
 last_payment_filtred AS (
